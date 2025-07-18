@@ -41,6 +41,15 @@
         </div>
     @endif
 
+
+
+        <div class="d-flex justify-content-center mt-5">
+            <img src="{{ asset('img/coffe.png') }}" alt="Taza de café humeante sobre mesa de madera"
+                class="img-fluid rounded shadow mb-4" style="max-height: 350px">
+        </div>
+
+
+
 <div class="container min-vh-100 d-flex flex-column justify-content-center align-items-center pt-5">
     <div class="text-center">
         <h1 class="mt-5 fw-bolder display-3" style="letter-spacing: 2px;">Bienvenido a BeanFlow Coffee</h1>
