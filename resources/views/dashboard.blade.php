@@ -1,63 +1,62 @@
-
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
 
-        {{-- Contenido según rol (grid superior) --}}
+        {{-- Grid superior por permisos --}}
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
 
-            @role('admin')
+            @can('admin.view')
                 <div class="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
                     <h3 class="text-lg font-bold">Panel Admin</h3>
                     <p>Estadísticas, gestión de usuarios, menú...</p>
                 </div>
-            @endrole
+            @endcan
 
-            @role('garzon')
+            @can('orders.handle') {{-- garzón/caja --}}
                 <div class="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
                     <h3 class="text-lg font-bold">Panel Garzón</h3>
                     <p>Pedidos, mesas y comandas.</p>
                 </div>
-            @endrole
+            @endcan
 
-            @role('cocina')
+            @can('kitchen.handle')
                 <div class="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
                     <h3 class="text-lg font-bold">Panel Cocina</h3>
                     <p>Comandas activas y orden de preparación.</p>
                 </div>
-            @endrole
+            @endcan
 
-            @role('ventas')
+            @can('sales.handle')
                 <div class="p-4 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
                     <h3 class="text-lg font-bold">Panel Ventas</h3>
                     <p>Ventas por caja, boletas, facturación.</p>
                 </div>
-            @endrole
+            @endcan
 
         </div>
 
-        {{-- Área inferior más grande --}}
+        {{-- Área inferior --}}
         <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 p-4">
-
-            @role('admin')
+            @can('admin.view')
                 <p class="text-neutral-800 dark:text-neutral-200">Bienvenido administrador.</p>
-            @endrole
+            @endcan
 
-            @role('garzon')
+            @can('orders.handle')
                 <p class="text-neutral-800 dark:text-neutral-200">Pedidos activos y estado de las mesas.</p>
-            @endrole
+            @endcan
 
-            @role('cocina')
+            @can('kitchen.handle')
                 <p class="text-neutral-800 dark:text-neutral-200">Comandas en preparación...</p>
-            @endrole
+            @endcan
 
-            @role('ventas')
+            @can('sales.handle')
                 <p class="text-neutral-800 dark:text-neutral-200">Resumen de ventas del día.</p>
-            @endrole
-
+            @endcan
         </div>
-
     </div>
 </x-layouts.app>
+
+
+
 
 {{-- !codigo antiguo --}}
 {{-- <x-layouts.app :title="__('Dashboard')">
