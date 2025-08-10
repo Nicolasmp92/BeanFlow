@@ -13,149 +13,117 @@
         <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
             <x-app-logo />
         </a>
-
-<flux:navlist variant="outline">
-    {{-- CAFETERÍA / OPERACIÓN --}}
-    <flux:navlist.group :heading="__('Cafetería')" class="grid">
-        <flux:navlist.item icon="home"
-            :href="route('dashboard')"
-            :current="request()->routeIs('dashboard')"
-            wire:navigate>
-            {{ __('Dashboard') }}
-        </flux:navlist.item>
-
-        {{-- Operación diaria --}}
-        @can('orders.handle')
-            <flux:navlist.item icon="coffee"
-                :href="route('stub', 'pedidos')"
-                :current="request()->is('stub/pedidos')"
-                wire:navigate>{{ __('Pedidos') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="table"
-                :href="route('stub', 'mesas')"
-                :current="request()->is('stub/mesas')"
-                wire:navigate>{{ __('Mesas') }}
-            </flux:navlist.item>
-        @endcan
-
-        {{-- Carta y productos (puedes cambiar a permissions más finos luego) --}}
-        @can('admin.view')
-            <flux:navlist.item icon="package"
-                :href="route('stub', 'productos')"
-                :current="request()->is('stub/productos')"
-                wire:navigate>{{ __('Productos') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="tags"
-                :href="route('stub', 'categorias')"
-                :current="request()->is('stub/categorias')"
-                wire:navigate>{{ __('Categorías') }}
-            </flux:navlist.item>
-        @endcan
-    </flux:navlist.group>
-
-    {{-- VENTAS --}}
-    @can('sales.handle')
-        <flux:navlist.group :heading="__('Ventas')">
-            <flux:navlist.item icon="credit-card"
-                :href="route('stub', 'caja')"
-                :current="request()->is('stub/caja')"
-                wire:navigate>{{ __('Caja / Ventas') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="users"
-                :href="route('stub', 'clientes')"
-                :current="request()->is('stub/clientes')"
-                wire:navigate>{{ __('Clientes') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="star"
-                :href="route('stub', 'fidelizacion')"
-                :current="request()->is('stub/fidelizacion')"
-                wire:navigate>{{ __('Fidelización') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="receipt"
-                :href="route('stub', 'compras')"
-                :current="request()->is('stub/compras')"
-                wire:navigate>{{ __('Compras') }}
-            </flux:navlist.item>
-        </flux:navlist.group>
-    @endcan
-
-    {{-- COCINA --}}
-    @can('kitchen.handle')
-        <flux:navlist.group :heading="__('Cocina')">
-            <flux:navlist.item icon="chef-hat"
-                :href="route('stub', 'menu-del-dia')"
-                :current="request()->is('stub/menu-del-dia')"
-                wire:navigate>{{ __('Menú del día') }}
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="book-open"
-                :href="route('stub', 'recetas')"
-                :current="request()->is('stub/recetas')"
-                wire:navigate>{{ __('Recetas') }}
-            </flux:navlist.item>
-        </flux:navlist.group>
-    @endcan
-
-    {{-- ADMINISTRACIÓN --}}
-    @canany(['admin.view','users.manage'])
-        <flux:navlist.group :heading="__('Administración')">
-            @can('admin.view')
-                <flux:navlist.item icon="boxes"
-                    :href="route('stub', 'inventario')"
-                    :current="request()->is('stub/inventario')"
-                    wire:navigate>{{ __('Inventario') }}
+        @role('super-admin')
+        <flux:navlist variant="outline">
+            {{-- CAFETERÍA / OPERACIÓN --}}
+            <flux:navlist.group :heading="__('Cafetería')" class="grid">
+                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                    wire:navigate>
+                    {{ __('Dashboard') }}
                 </flux:navlist.item>
 
-                <flux:navlist.item icon="truck"
-                    :href="route('stub', 'proveedores')"
-                    :current="request()->is('stub/proveedores')"
-                    wire:navigate>{{ __('Proveedores') }}
+                {{-- Operación diaria --}}
+                @can('orders.handle')
+                <flux:navlist.item icon="coffee" :href="route('stub', 'pedidos')"
+                    :current="request()->is('stub/pedidos')" wire:navigate>{{ __('Pedidos') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="table" :href="route('stub', 'mesas')" :current="request()->is('stub/mesas')"
+                    wire:navigate>{{ __('Mesas') }}
+                </flux:navlist.item>
+                @endcan
+
+                {{-- Carta y productos (puedes cambiar a permissions más finos luego) --}}
+                @can('admin.view')
+                <flux:navlist.item icon="package" :href="route('stub', 'productos')"
+                    :current="request()->is('stub/productos')" wire:navigate>{{ __('Productos') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="tags" :href="route('stub', 'categorias')"
+                    :current="request()->is('stub/categorias')" wire:navigate>{{ __('Categorías') }}
+                </flux:navlist.item>
+                @endcan
+            </flux:navlist.group>
+
+            {{-- VENTAS --}}
+            @can('sales.handle')
+            <flux:navlist.group :heading="__('Ventas')">
+                <flux:navlist.item icon="credit-card" :href="route('stub', 'caja')"
+                    :current="request()->is('stub/caja')" wire:navigate>{{ __('Caja / Ventas') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="users" :href="route('stub', 'clientes')"
+                    :current="request()->is('stub/clientes')" wire:navigate>{{ __('Clientes') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="star" :href="route('stub', 'fidelizacion')"
+                    :current="request()->is('stub/fidelizacion')" wire:navigate>{{ __('Fidelización') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="receipt" :href="route('stub', 'compras')"
+                    :current="request()->is('stub/compras')" wire:navigate>{{ __('Compras') }}
+                </flux:navlist.item>
+            </flux:navlist.group>
+            @endcan
+
+            {{-- COCINA --}}
+            @can('kitchen.handle')
+            <flux:navlist.group :heading="__('Cocina')">
+                <flux:navlist.item icon="chef-hat" :href="route('stub', 'menu-del-dia')"
+                    :current="request()->is('stub/menu-del-dia')" wire:navigate>{{ __('Menú del día') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="book-open" :href="route('stub', 'recetas')"
+                    :current="request()->is('stub/recetas')" wire:navigate>{{ __('Recetas') }}
+                </flux:navlist.item>
+            </flux:navlist.group>
+            @endcan
+
+            {{-- ADMINISTRACIÓN --}}
+            @canany(['admin.view','users.manage'])
+            <flux:navlist.group :heading="__('Administración')">
+                @can('admin.view')
+                <flux:navlist.item icon="boxes" :href="route('stub', 'inventario')"
+                    :current="request()->is('stub/inventario')" wire:navigate>{{ __('Inventario') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="truck" :href="route('stub', 'proveedores')"
+                    :current="request()->is('stub/proveedores')" wire:navigate>{{ __('Proveedores') }}
                 </flux:navlist.item>
 
                 {{-- Reportes: usa chart-bar (Heroicons). Si prefieres Lucide, importa chart-column. --}}
-                <flux:navlist.item icon="chart-bar"
-                    :href="route('stub', 'reportes')"
-                    :current="request()->is('stub/reportes')"
-                    wire:navigate>{{ __('Reportes') }}
+                <flux:navlist.item icon="chart-bar" :href="route('stub', 'reportes')"
+                    :current="request()->is('stub/reportes')" wire:navigate>{{ __('Reportes') }}
                 </flux:navlist.item>
-            @endcan
+                @endcan
 
-            @can('users.manage')
-                <flux:navlist.item icon="users"
-                    :href="route('stub', 'usuarios')"
-                    :current="request()->is('stub/usuarios')"
-                    wire:navigate>{{ __('Gestión de Usuarios') }}
+                @can('users.manage')
+                <flux:navlist.item icon="users" :href="route('stub', 'usuarios')"
+                    :current="request()->is('stub/usuarios')" wire:navigate>{{ __('Gestión de Usuarios') }}
                 </flux:navlist.item>
-            @endcan
+                @endcan
 
-            @can('admin.view')
-                <flux:navlist.item icon="cog"
-                    :href="route('stub', 'ajustes')"
-                    :current="request()->is('stub/ajustes')"
+                @can('admin.view')
+                <flux:navlist.item icon="cog" :href="route('stub', 'ajustes')" :current="request()->is('stub/ajustes')"
                     wire:navigate>{{ __('Ajustes') }}
                 </flux:navlist.item>
-            @endcan
-        </flux:navlist.group>
-    @endcanany
-</flux:navlist>
-
+                @endcan
+            </flux:navlist.group>
+            @endcanany
+        </flux:navlist>
+        @endrole
         <flux:spacer />
 
         <flux:navlist variant="outline">
-            <flux:navlist.item icon="folder-git-2" href="#"
-                target="_blank">
+            <flux:navlist.item icon="folder-git-2" href="#" target="_blank">
                 {{ __('Repository') }}
             </flux:navlist.item>
-
-            <flux:navlist.item icon="book-open-text" href="#"
-                target="_blank">
-                {{ __('Notas: v0.1.0') }}
+            {{-- !noas de la version --}}
+            {{-- Notas de la versión --}}
+            <flux:navlist.item icon="book-open-text" :href="route('version.notes')">
+                {{ __('Notas: v') . config('app.version') }}
             </flux:navlist.item>
+
         </flux:navlist>
 
         <!-- Desktop User Menu -->

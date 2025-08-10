@@ -30,6 +30,8 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    //* ruta volt para las notas del control de versiones
+    Volt::route('version/notes', 'version.notes')->name('version.notes');
 });
 
 // 🔐 Rutas de autenticación (login, register, forgot, etc.)
