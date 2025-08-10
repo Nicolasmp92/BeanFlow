@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 {{-- ? es la plantilla de login que utilizaremos para mostrar --}}
-{{-- <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark"> --}}
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data
-    x-init="document.documentElement.classList.add(localStorage.getItem('theme') || 'dark')">
-
-
 <head>
     @include('partials.head')
 </head>
@@ -58,17 +53,16 @@
         </div>
     </div>
     @fluxScripts
-    {{-- Booton para el dark mode --}}
-    <button x-data @click="
-        const html = document.documentElement;
-        const isDark = html.classList.contains('dark');
-        html.classList.toggle('dark');
-        html.classList.toggle('light');
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    " class="absolute top-4 right-4 z-50 rounded-full bg-white/90 p-2 shadow-lg dark:bg-neutral-800 transition-colors"
-        title="Cambiar tema">
-        🌗
-    </button>
+
+
+    {{--! Booton para el dark mode --}}
+    @include('partials.darkmode-login-toggle')
+    <style>
+    @media (prefers-reduced-motion: no-preference) {
+    html, body { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+    }
+    </style>
+
 
 </body>
 

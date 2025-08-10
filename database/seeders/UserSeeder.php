@@ -2,46 +2,79 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        // Asegura que los roles existan (por si este seeder corre solo)
+        foreach (['super-admin', 'admin', 'garzon', 'cocina', 'ventas'] as $r) {
+            Role::findOrCreate($r, 'web');
+        }
 
-        // Usuario administrador
-        $admin = User::factory()->create([
-            'name' => 'Administrador',
-            'email' => 'admin@beanflow.test',
-            'password' => bcrypt('admin123'), // cambia después por seguridad
+        // 🔑 SUPER ADMIN 1
+        $super1 = User::factory()->create([
+            'name' => 'Nye (Super Admin)',
+            'email' => 'nikolasmp92@gmail.com',
+            'password' => bcrypt('super123'),
         ]);
+        $super1->assignRole('super-admin');
+
+        // 🔑 SUPER ADMIN 2
+        $super2 = User::factory()->create([
+            'name' => 'Elizabeth (Super Admin)',
+            'email' => 'otro_correo@tudominio.com',
+            'password' => bcrypt('super123'),
+        ]);
+        $super2->assignRole('super-admin');
+
+
+        // ADMIN
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@beanflow.test'],
+            [
+                'name' => 'Administrador',
+                'password' => Hash::make('admin123'), // cámbialo luego
+                'email_verified_at' => now(),
+            ]
+        );
         $admin->assignRole('admin');
 
-        // Usuario garzón
-        $garzon = User::factory()->create([
-            'name' => 'Garzón 1',
-            'email' => 'garzon@beanflow.test',
-        ]);
+        // GARZÓN
+        $garzon = User::firstOrCreate(
+            ['email' => 'garzon@beanflow.test'],
+            [
+                'name' => 'Garzón 1',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $garzon->assignRole('garzon');
 
-        // Usuario cocina
-        $cocina = User::factory()->create([
-            'name' => 'Cocinero',
-            'email' => 'cocina@beanflow.test',
-        ]);
+        // COCINA
+        $cocina = User::firstOrCreate(
+            ['email' => 'cocina@beanflow.test'],
+            [
+                'name' => 'Cocinero',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $cocina->assignRole('cocina');
 
-        // Usuario ventas
-        $ventas = User::factory()->create([
-            'name' => 'Caja',
-            'email' => 'ventas@beanflow.test',
-        ]);
+        // VENTAS
+        $ventas = User::firstOrCreate(
+            ['email' => 'ventas@beanflow.test'],
+            [
+                'name' => 'Caja',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $ventas->assignRole('ventas');
     }
-
 }

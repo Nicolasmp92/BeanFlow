@@ -23,12 +23,20 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Puedes cambiar el dominio para mantener consistencia del entorno
+        $email = fake()->unique()->safeEmail();
+        if (str_ends_with($email, '@example.org') || str_ends_with($email, '@example.com')) {
+            $email = str_replace('@example.com', '@beanflow.test', $email);
+            $email = str_replace('@example.org', '@beanflow.test', $email);
+        }
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name'              => fake()->name(),
+            'email'             => $email,
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            // Permite sobreescribir con FACTORY_PASSWORD en .env si quieres
+            'password'          => static::$password ??= Hash::make(env('FACTORY_PASSWORD', 'password')),
+            'remember_token'    => Str::random(10),
         ];
     }
 
@@ -40,5 +48,53 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Estados por rol (Spatie). No rompe si aún no tienes HasRoles/roles creados.
+     */
+    public function superAdmin(): static
+    {
+        return $this->afterCreating(function ($user) {
+            if (method_exists($user, 'assignRole')) {
+                try { $user->assignRole('super-admin'); } catch (\Throwable $e) {}
+            }
+        });
+    }
+
+    public function admin(): static
+    {
+        return $this->afterCreating(function ($user) {
+            if (method_exists($user, 'assignRole')) {
+                try { $user->assignRole('admin'); } catch (\Throwable $e) {}
+            }
+        });
+    }
+
+    public function garzon(): static
+    {
+        return $this->afterCreating(function ($user) {
+            if (method_exists($user, 'assignRole')) {
+                try { $user->assignRole('garzon'); } catch (\Throwable $e) {}
+            }
+        });
+    }
+
+    public function cocina(): static
+    {
+        return $this->afterCreating(function ($user) {
+            if (method_exists($user, 'assignRole')) {
+                try { $user->assignRole('cocina'); } catch (\Throwable $e) {}
+            }
+        });
+    }
+
+    public function ventas(): static
+    {
+        return $this->afterCreating(function ($user) {
+            if (method_exists($user, 'assignRole')) {
+                try { $user->assignRole('ventas'); } catch (\Throwable $e) {}
+            }
+        });
     }
 }
