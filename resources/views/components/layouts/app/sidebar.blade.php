@@ -1,3 +1,4 @@
+{{-- resources\views\components\layouts\app\sidebar.blade.php --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 {{-- <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"> --}}
@@ -119,10 +120,13 @@
                 {{ __('Repository') }}
             </flux:navlist.item>
             {{-- !noas de la version --}}
-            {{-- Notas de la versión --}}
-            <flux:navlist.item icon="book-open-text" :href="route('version.notes')">
+            {{-- Notas de la versión (abre modal) --}}
+            <flux:navlist.item icon="book-open-text" href="#" onclick="openReleaseNotes(); return false;">
                 {{ __('Notas: v') . config('app.version') }}
             </flux:navlist.item>
+
+
+
 
         </flux:navlist>
 

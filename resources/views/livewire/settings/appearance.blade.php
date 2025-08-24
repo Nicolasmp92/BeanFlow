@@ -31,9 +31,7 @@ new class extends Component {
     @include('partials.settings-heading')
 
     <x-settings.layout :heading="__('Appearance')" :subheading=" __('Update the appearance settings for your account')">
-        <flux:radio.group
-            x-data
-            x-init="
+        <flux:radio.group x-data x-init="
                 // 1) set inicial desde BD
                 $flux.appearance = @js($theme);
 
@@ -47,10 +45,7 @@ new class extends Component {
                   const resolved = mode === 'system' ? (sysDark ? 'dark' : 'light') : mode;
                   document.documentElement.classList.toggle('dark', resolved === 'dark');
                 });
-            "
-            variant="segmented"
-            x-model="$flux.appearance"
-        >
+            " variant="segmented" x-model="$flux.appearance">
             <flux:radio value="light" icon="sun">{{ __('Light') }}</flux:radio>
             <flux:radio value="dark" icon="moon">{{ __('Dark') }}</flux:radio>
             <flux:radio value="system" icon="computer-desktop">{{ __('System') }}</flux:radio>

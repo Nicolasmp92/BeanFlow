@@ -18,15 +18,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
     #[Validate('required|string')]
     public string $password = '';
 
+    // Backend: "Recordarme" real de Laravel
     public bool $remember = false;
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function login(): void
     {
         $this->validate();
-
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
@@ -43,9 +40,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 
-    /**
-     * Ensure the authentication request is not rate limited.
-     */
     protected function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -64,9 +58,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         ]);
     }
 
-    /**
-     * Get the authentication rate limiting throttle key.
-     */
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
@@ -74,54 +65,148 @@ new #[Layout('components.layouts.auth')] class extends Component {
 }; ?>
 
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+    <x-auth-header :title="__('Log in to your account')"
+        :description="__('Enter your email and password below to log in')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
+    {{-- IMPORTANTE: .prevent evita submit nativo y garantiza la acción Livewire --}}
+    <form wire:submit.prevent="login" class="flex flex-col gap-6" autocomplete="on">
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
+        <flux:input id="email" wire:model="email" :label="__('Email address')" type="email" required autofocus
+            autocomplete="email" placeholder="email@example.com" />
+        @error('email')
+        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+        @enderror
+
+        <!-- Recordar SOLO el correo (frontend con localStorage) -->
+        <div class="flex items-center -mt-2">
+            <label for="rememberEmail" class="inline-flex items-center gap-2 cursor-pointer">
+                <input id="rememberEmail" type="checkbox" class="rounded border-zinc-300 dark:border-zinc-600">
+                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ __('Recordar correo') }}</span>
+
+                <!-- Tooltip del "Recordar correo" (opcional) -->
+                <button type="button" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700" data-tooltip
+                    data-tooltip-content="#tip-remember-email" data-placement="right"
+                    aria-describedby="tip-remember-email" aria-label="¿Qué hace Recordar correo?">
+                    <flux:icon name="info" class="w-4 h-4 text-zinc-500 dark:text-zinc-300" />
+                </button>
+            </label>
+        </div>
 
         <!-- Password -->
         <div class="relative">
-            <flux:input
-                wire:model="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
-            />
+            <flux:input wire:model="password" :label="__('Password')" type="password" required
+                autocomplete="current-password" :placeholder="__('Password')" viewable />
 
             @if (Route::has('password.request'))
-                <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </flux:link>
+            <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
+                {{ __('Forgot your password?') }}
+            </flux:link>
             @endif
         </div>
+        @error('password')
+        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+        @enderror
 
-        <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
+        <!-- Recordarme (backend real) + Tooltip POP -->
+        <div class="relative inline-flex items-center gap-2">
+            <flux:checkbox id="remember" wire:model="remember" :label="__('Recordarme')" />
+
+            <!-- Disparador del tooltip -->
+            <button type="button" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700" data-tooltip
+                data-tooltip-content="#tip-remember" data-placement="right" aria-describedby="tip-remember"
+                aria-label="¿Qué hace Recordarme?">
+                <flux:icon name="info" class="w-4 h-4 text-zinc-500 dark:text-zinc-300" />
+            </button>
+        </div>
+
+        <!-- Tooltips ocultos -->
+        <div id="tip-remember-email" role="tooltip" class="hidden z-50 w-80 rounded-lg border border-zinc-200 bg-white p-3 text-sm text-zinc-700 shadow-lg
+                    dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+            <p class="font-medium mb-1">Recordar correo</p>
+            <p>Guarda tu dirección de correo en este navegador para autocompletarla la próxima vez.
+                No inicia sesión automáticamente.</p>
+            <div data-popper-arrow class="absolute w-2 h-2 rotate-45 bg-white dark:bg-zinc-800
+                        border-l border-t border-zinc-200 dark:border-zinc-700"></div>
+        </div>
+
+        <div id="tip-remember" role="tooltip" class="hidden z-50 w-80 rounded-lg border border-zinc-200 bg-white p-3 text-sm text-zinc-700 shadow-lg
+                    dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+            <p class="font-medium mb-1">Recordarme</p>
+            <p>Mantiene tu sesión iniciada en este dispositivo incluso si cierras el navegador.
+                Úsalo solo en equipos de confianza.</p>
+            <div data-popper-arrow class="absolute w-2 h-2 rotate-45 bg-white dark:bg-zinc-800
+                        border-l border-t border-zinc-200 dark:border-zinc-700"></div>
+        </div>
 
         <div class="flex items-center justify-end">
-            <flux:button variant="primary" type="submit" class="w-full">{{ __('Log in') }}</flux:button>
+            <flux:button variant="primary" type="submit" class="w-full" wire:loading.attr="disabled"
+                wire:target="login">
+                <span wire:loading.remove>{{ __('Log in') }}</span>
+                <span wire:loading>{{ __('Loading...') }}</span>
+            </flux:button>
         </div>
     </form>
 
     @if (Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
+    <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <span>{{ __('Don\'t have an account?') }}</span>
+        <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
+    </div>
     @endif
 </div>
+
+@once
+<script>
+    /**
+ * Recordar SOLO el correo (frontend, localStorage) y mantener sincronía con Livewire.
+ */
+function applyRememberedEmail() {
+    const emailInput    = document.querySelector('#email');
+    const rememberEmail = document.querySelector('#rememberEmail');
+    if (!emailInput || !rememberEmail) return;
+
+    const KEY_ENABLED = 'login_email_enabled';
+    const KEY_VALUE   = 'login_email';
+
+    // Cargar estado guardado
+    const enabled = localStorage.getItem(KEY_ENABLED) === 'true';
+    const saved   = localStorage.getItem(KEY_VALUE) || '';
+
+    rememberEmail.checked = enabled;
+
+    // Precargar valor si corresponde
+    if (enabled && saved) {
+        // Solo si el input está vacío, para no pisar lo que tecleó el usuario
+        if (!emailInput.value) {
+            emailInput.value = saved;
+            // Notificar a Livewire (simula input)
+            emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+
+    // Al cambiar el checkbox
+    rememberEmail.addEventListener('change', () => {
+        const on = rememberEmail.checked;
+        localStorage.setItem(KEY_ENABLED, String(on));
+        if (!on) {
+            localStorage.removeItem(KEY_VALUE);
+        } else {
+            localStorage.setItem(KEY_VALUE, emailInput.value || '');
+        }
+    });
+
+    // Al escribir en el correo, si está activo, persistir
+    emailInput.addEventListener('input', () => {
+        if (rememberEmail.checked) {
+            localStorage.setItem(KEY_VALUE, emailInput.value || '');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', applyRememberedEmail);
+document.addEventListener('livewire:navigated', applyRememberedEmail);
+</script>
+@endonce

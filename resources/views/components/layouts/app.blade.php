@@ -8,7 +8,7 @@
     if (resolved === 'dark') document.documentElement.classList.add('dark');
     })();
     </script>
-
+    {{-- ! se comenta para cambiar el fondo de la aplicacion --}}
     <flux:main>
         {{ $slot }}
     </flux:main>

@@ -1,1 +1,1 @@
-<img src="{{ asset('img/coffe_sinfondo.png') }}" alt="">
+<img src="{{ asset('img/icons/coffe_sinfondo.png') }}" alt="">
