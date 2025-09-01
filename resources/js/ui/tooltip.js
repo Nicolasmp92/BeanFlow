@@ -8,36 +8,56 @@ function makeTip(trigger, tip) {
     // Lee atributos
     const placement = trigger.getAttribute("data-placement") || "top";
     const arrowEl = tip.querySelector("[data-popper-arrow]");
+    // helper: crea popper una sola vez por tip/trigger
+    let instance = null;
 
-    // Mostrar/ocultar
+    const create = () => {
+        // Evita instancias duplicadas si alguien “spamea” hover/click
+        if (instance) return instance;
+
+        // Construye array de modifiers limpio
+        const modifiers = [
+            { name: "offset", options: { offset: [0, 8] } },
+            {
+                name: "preventOverflow",
+                options: { padding: 8, boundary: "clippingParents" },
+            },
+            // Importante: desactivar GPU a veces corrige desfases de flecha
+            { name: "computeStyles", options: { gpuAcceleration: false } },
+        ];
+        if (arrowEl) {
+            modifiers.push({
+                name: "arrow",
+                options: { element: arrowEl, padding: 6 },
+            });
+        }
+
+        instance = window.createPopper(trigger, tip, {
+            placement,
+            strategy: "fixed", // suele alinear mejor en layouts con transforms/scrolls
+            modifiers,
+        });
+
+        return instance;
+    };
+
     const show = () => {
         if (!tip) return;
         tip.classList.remove("hidden");
         tip.style.visibility = "visible";
+        tip.style.pointerEvents = "auto";
 
-        // Instancia Popper
-        const instance = window.createPopper(trigger, tip, {
-            placement,
-            modifiers: [
-                { name: "offset", options: { offset: [0, 8] } },
-                arrowEl ? { name: "arrow", options: { element: arrowEl } } : {},
-                { name: "preventOverflow", options: { padding: 8 } },
-            ],
-        });
-
-        // Guardamos para poder cerrar luego
-        tooltips.push({ trigger, tip, instance });
+        create(); // crea si no existe
+        instance.update(); // fuerza cálculo con el elemento ya visible
     };
 
     const hide = () => {
-        const idx = tooltips.findIndex(
-            (t) => t.trigger === trigger && t.tip === tip
-        );
-        if (idx !== -1) {
-            tooltips[idx].instance?.destroy?.();
-            tooltips.splice(idx, 1);
+        if (instance) {
+            instance.destroy();
+            instance = null;
         }
         tip.style.visibility = "hidden";
+        tip.style.pointerEvents = "none";
         tip.classList.add("hidden");
     };
 

@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
+@import './popper.css';     /*? para los tooltips */
+@import './splash.css';     /*? para la cortina de carga */
+
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

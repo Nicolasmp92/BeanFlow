@@ -1,18 +1,20 @@
-// resources/js/app.js
+// ==================== DEPENDENCIAS PRINCIPALES ====================
+// ! Importa las dependencias principales usadas en toda la app
+import './core/popper'; // * Expone window.createPopper desde @popperjs/core
 
-// --- Core (una sola vez para toda la app) ---
-import './core/popper';
- // -> expone window.createPopper desde @popperjs/core
+// ==================== MÓDULOS UI GLOBALES ====================
+// ! Importa módulos UI globales (inicializa antes de tu propio código)
+import './ui/splash'; // * Lógica de la pantalla de carga
+import { registerNotify } from "./ui/notify"; // * SweetAlert2 (notificaciones)
+import { registerTooltips } from "./ui/tooltip"; // * Tooltips vía data-attributes + Popper
+import { registerTheme } from "./ui/theme"; // * Gestión de tema/acento/neutral
 
-// --- UI global ---
-import { registerNotify } from "./ui/notify"; // SweetAlert2 (toasts)
-import { registerTooltips } from "./ui/tooltip"; // Tooltips via data-attributes + Popper
-import { registerTheme } from "./ui/theme"; // Manejo de tema/accent/neutral
+// ==================== MÓDULOS ESPECÍFICOS DE PÁGINA ====================
+// ! Importa código específico de página (ignora si faltan elementos en el DOM)
+import "./pages/login"; // * Recordar email + preferencia "mantener sesión" (localStorage)
 
-// --- Páginas (código específico; se auto-ignora si el DOM no tiene esos elementos) ---
-import "./pages/login"; // Recordar correo + preferencia "mantener sesión" (localStorage)
-
-// --- Helpers seguros para no romper si falta algo ---
+// ==================== HELPERS SEGUROS ====================
+// ! Wrapper seguro para evitar errores si falta algo
 function safe(fn) {
     try {
         fn?.();
@@ -21,27 +23,33 @@ function safe(fn) {
     }
 }
 
+// ==================== INICIALIZACIÓN DE UI ====================
+// ! Inicializa los módulos UI globales
 function initUI() {
     safe(registerTheme);
     safe(registerNotify);
     safe(registerTooltips);
 }
 
-// --- Inicializa cuando el DOM está listo ---
+// ==================== INICIALIZACIÓN AL CARGAR DOM ====================
+// ! Inicializa la UI cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", () => {
     initUI();
 });
 
-// --- Re-inicializa después de navegación con Livewire (sin recargar) ---
+// ==================== SOPORTE NAVEGACIÓN LIVEWIRE ====================
+// ! Re-inicializa la UI después de navegar con Livewire (sin recarga completa)
 document.addEventListener("livewire:navigated", () => {
     initUI();
 });
 
-// --- (Opcional) Si usas Livewire v3, a veces ayuda escuchar estos también ---
+// ==================== LIVEWIRE V3 (OPCIONAL) ====================
+// ? Descomenta si usas Livewire v3 para soporte de eventos adicional
 // document.addEventListener('livewire:init', initUI);
 // document.addEventListener('livewire:load', initUI);
 
-// --- Vite HMR (opcional) ---
+// ==================== SOPORTE VITE HMR (OPCIONAL) ====================
+// ! Hot Module Replacement para Vite (re-inicializa la UI automáticamente)
 if (import.meta && import.meta.hot) {
     import.meta.hot.accept(() => {
         initUI();

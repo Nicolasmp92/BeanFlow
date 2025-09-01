@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "038d259549c2d8494de3b5b0f43c6291",
+    "content-hash": "4b31adb47719f56c9cb91dda3d6a2bcc",
     "packages": [
         {
             "name": "archtechx/enums",
@@ -3731,16 +3731,16 @@
         },
         {
             "name": "livewire/flux",
-            "version": "v2.2.3",
+            "version": "v2.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/flux.git",
-                "reference": "0fb4c0b78eac393ad3a19a387af193573c310371"
+                "reference": "a0e8f33a5cd54ead4d8e27721961425ccbae2e33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/flux/zipball/0fb4c0b78eac393ad3a19a387af193573c310371",
-                "reference": "0fb4c0b78eac393ad3a19a387af193573c310371",
+                "url": "https://api.github.com/repos/livewire/flux/zipball/a0e8f33a5cd54ead4d8e27721961425ccbae2e33",
+                "reference": "a0e8f33a5cd54ead4d8e27721961425ccbae2e33",
                 "shasum": ""
             },
             "require": {
@@ -3751,6 +3751,9 @@
                 "livewire/livewire": "^3.5.19",
                 "php": "^8.1",
                 "symfony/console": "^6.0|^7.0"
+            },
+            "conflict": {
+                "livewire/blaze": "<0.1.0"
             },
             "type": "library",
             "extra": {
@@ -3788,9 +3791,9 @@
             ],
             "support": {
                 "issues": "https://github.com/livewire/flux/issues",
-                "source": "https://github.com/livewire/flux/tree/v2.2.3"
+                "source": "https://github.com/livewire/flux/tree/v2.2.6"
             },
-            "time": "2025-07-11T00:25:51+00:00"
+            "time": "2025-08-27T02:05:01+00:00"
         },
         {
             "name": "livewire/livewire",
