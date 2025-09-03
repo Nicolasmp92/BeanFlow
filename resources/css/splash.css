@@ -1,31 +1,20 @@
-/* resources/css/splash.css */
-
-/* Asegura que #app-splash SIEMPRE cubra el viewport completo */
 #app-splash {
     width: 100vw;
     height: 100dvh;
-    /* alto dinámico (mejor en móviles) */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    /* notch */
 }
 
 @supports not (height: 100dvh) {
     #app-splash {
         height: 100vh;
     }
-
-    /* fallback */
 }
 
-/* (opcional) si algún ancestro aplica transform, evitamos clipping: */
 html,
 body {
     min-height: 100%;
 }
 
-
-
-/* ====== Helpers de la cortina ====== */
 .splash-open {
     overflow: hidden;
 }
@@ -33,17 +22,14 @@ body {
 .splash-hidden{
     opacity:0;
     pointer-events:none;
-    visibility:hidden; /* 👈 evita focus/frenos raros */
+    visibility:hidden;
 }
 
-/* ====== Taza: pulso sutil y vapor ====== */
 @keyframes cupPulse {
-
     0%,
     100% {
         transform: translateZ(0) scale(1);
     }
-
     50% {
         transform: translateZ(0) scale(1.04);
     }
@@ -52,32 +38,26 @@ body {
 #coffee-icon {
     animation: cupPulse 2200ms ease-in-out infinite;
     overflow: visible;
-    /* evita que el “techo” recorte el vapor */
 }
 
-/* Vapor desde el borde superior, desvaneciéndose */
 @keyframes steamUpFade {
     0% {
         transform: translateY(0) scaleY(0.25);
         opacity: 0;
     }
-
     15% {
         opacity: .9;
     }
-
     60% {
         transform: translateY(-4px) scaleY(1);
         opacity: .9;
     }
-
     100% {
         transform: translateY(-8px) scaleY(1.08);
         opacity: 0;
     }
 }
 
-/* Clases aplicadas por JS a los 3 paths de vapor: M10 2v2, M14 2v2, M6 2v2 */
 .coffee-steam {
     transform-box: fill-box;
     transform-origin: 50% 100%;
@@ -93,24 +73,19 @@ body {
     animation-delay: .3s;
 }
 
-/* si agregas un 4º */
 .coffee-steam.delay-400 {
     animation-delay: .4s;
 }
 
-/* ====== Puntos animados “...” del mensaje ====== */
 @keyframes dotBlink {
-
     0%,
     20% {
         opacity: 0;
     }
-
     30%,
     70% {
         opacity: 1;
     }
-
     100% {
         opacity: 0;
     }
@@ -135,26 +110,21 @@ body {
     animation-delay: .4s;
 }
 
-/* ====== Estado “listo”: saludo + micro-pop ====== */
 @keyframes cupPop {
     0% {
         transform: scale(1);
     }
-
     40% {
         transform: scale(1.08);
     }
-
     100% {
         transform: scale(1);
     }
 }
 
-/* Al completar, cambiamos color y quitamos puntos para que el texto final sea claro */
 #app-splash.splash-done #coffee-icon {
     animation: cupPop 420ms ease-out 1;
     color: var(--splash-ok, #10b981) !important;
-    /* emerald-500 */
 }
 
 #app-splash.splash-done #splash-message .dots {
