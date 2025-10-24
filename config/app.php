@@ -13,9 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'BeanFlow'),
-    'version' => env('APP_VERSION', '0.0.0'),
-
+    'name' => env('APP_NAME', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
@@ -79,17 +77,12 @@ return [
     | set to any locale for which you plan to have translation strings.
     |
     */
-    // // en ingles, lo comentamos
-    // 'locale' => env('APP_LOCALE', 'en'),
-    // 'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
-    // 'faker_local
-
 
     'locale' => env('APP_LOCALE', 'en'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'es'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'es_ES'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +101,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', env('APP_PREVIOUS_KEYS', ''))
+            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
 

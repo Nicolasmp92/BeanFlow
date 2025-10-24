@@ -1,3 +1,5 @@
+// resources/js/ui/splash.js
+
 const SPLASH_ID = "app-splash";
 const DEBUG_SPLASH = false;
 
@@ -20,13 +22,16 @@ function getMsgEls() {
     return { wrap: msg, text: msg?.querySelector(".msg-text") };
 }
 
+/* ============================
+   Cortina: mostrar/ocultar
+   ============================ */
 export function showSplash() {
     const el = $(SPLASH_ID);
     if (!el) return;
     finalized = false;
     el.style.display = "";
     el.removeAttribute("inert");
-    void el.offsetWidth;
+    void el.offsetWidth; // fuerza reflow para activar transiciones
     el.classList.remove("splash-hidden", "splash-done");
     el.setAttribute("aria-busy", "true");
     el.removeAttribute("aria-hidden");
@@ -51,6 +56,9 @@ export function hideSplash(delay = 180) {
     }, delay);
 }
 
+/* ============================
+   Mensajes "Preparando..."
+   ============================ */
 const PREPARING_MESSAGES = [
     "Preparando BeanFlow",
     "Calentando la cafetera",
@@ -108,44 +116,94 @@ function removeDuplicateSplashes() {
     }
 }
 
+/* ============================
+   🟤 Preparar tema/paletas antes de cerrar la cortina
+   ============================ */
+
+// Lectura segura de localStorage con fallback
+function lsGet(key, fallback) {
+    try {
+        const v = localStorage.getItem(key);
+        return v == null ? fallback : v;
+    } catch {
+        return fallback;
+    }
+}
+
+// Aplica paletas globales al <html> (no toca el modo)
+function applyPalettesToHtml() {
+    const html = document.documentElement;
+    html.setAttribute("data-accent", lsGet("theme:accent", "orange"));
+    html.setAttribute("data-neutral", lsGet("theme:neutral", "zinc"));
+}
+
+// Aplica el modo (dark/light) SOLO al scope de login (#auth-root)
+function applyLoginScopeTheme() {
+    const wantDark = lsGet("auth:theme", "light") === "dark";
+    const deadline = performance.now() + 1500; // reintenta por si el nodo tarda en renderizar
+
+    (function tick() {
+        const scope = document.querySelector("#auth-root");
+        if (scope) return scope.classList.toggle("dark", wantDark);
+        if (performance.now() < deadline) return requestAnimationFrame(tick);
+        // sin scope, queda claro por defecto
+    })();
+}
+
+/** Prepara paletas + tema del login mientras la cortina está visible */
+function prepareLoginTheme() {
+    // Asegura que NO usamos dark global en el primer paint (prehook del <head> ya lo hizo)
+    document.documentElement.classList.remove("dark");
+    applyPalettesToHtml();
+    applyLoginScopeTheme();
+}
+
+/* ============================
+   Wire-up de eventos
+   ============================ */
 function setupSplashEvents() {
     document.addEventListener("livewire:load", () => {
+        // Por si el contenido llega tarde, aplicamos tema de login una vez más
+        prepareLoginTheme();
         requestAnimationFrame(() =>
             finishAfterMin(TIMING.MIN_INITIAL_MS, TIMING.GREETING_READ_MS)
         );
     });
+
     window.addEventListener("load", () => {
-        if (!DEBUG_SPLASH)
-            finishAfterMin(TIMING.MIN_INITIAL_MS, TIMING.GREETING_READ_MS);
+        if (!DEBUG_SPLASH) finishAfterMin(TIMING.MIN_INITIAL_MS, TIMING.GREETING_READ_MS);
     });
+
     document.addEventListener("livewire:navigating", () => {
         showSplash();
         startRotatingPreparing();
     });
+
     document.addEventListener("livewire:navigated", () => {
+        // En navegación SPA aplicamos de nuevo por si cambió el DOM de login
+        prepareLoginTheme();
         finishAfterMin(TIMING.MIN_NAV_MS, 600);
     });
 }
 
+/* ============================
+   Boot
+   ============================ */
 (function boot() {
     removeDuplicateSplashes();
     showSplash();
     startRotatingPreparing();
+
+    // ⬇️ La cortina “prepara todo” antes de ocultarse
+    prepareLoginTheme();
+
     setupSplashEvents();
 })();
 
+/* ============================
+   Salvaguarda si algo queda abierto
+   ============================ */
 document.addEventListener("DOMContentLoaded", () => {
-    const svg = $("coffee-icon");
-    if (!svg) return;
-    const targetDs = new Set(["M10 2v2", "M14 2v2", "M6 2v2"]);
-    const steamPaths = Array.from(svg.querySelectorAll("path")).filter((p) =>
-        targetDs.has(p.getAttribute("d"))
-    );
-    steamPaths.forEach((p, i) => {
-        p.classList.add("coffee-steam");
-        if (i === 1) p.classList.add("delay-200");
-        if (i === 2) p.classList.add("delay-400");
-    });
     setTimeout(() => {
         const el = $(SPLASH_ID);
         if (el && !el.classList.contains("splash-hidden")) {

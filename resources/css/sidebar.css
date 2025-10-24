@@ -1,0 +1,166 @@
+/* ============================
+   Variables de layout
+   ============================ */
+:root {
+    --sidenav-w: 0px; /* ancho actual del sidebar (desktop) */
+    --topbar-h: 64px; /* alto de topbar (h-16) */
+}
+
+/* Evita scroll horizontal global */
+html,
+body {
+    overflow-x: hidden;
+}
+
+/* Shell (contenido empujado) */
+.shell {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box; /* para que el padding no rompa el ancho */
+}
+
+/* Transiciones */
+#sidebar,
+.shell {
+    transition: padding 0.2s ease, margin 0.2s ease, width 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* -------- Desktop (>=1024px) -------- */
+@media (min-width: 1024px) {
+    /* Define el ancho actual del sidebar */
+    body.has-sidenav {
+        --sidenav-w: 280px;
+    }
+    body.has-sidenav.collapsed {
+        --sidenav-w: 84px;
+    }
+
+    /* Sidebar fijo y SIN overflow horizontal */
+    #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: var(--sidenav-w);
+        transform: none !important;
+        overflow-x: hidden; /* elimina scroll horizontal del aside */
+        z-index: 50;
+    }
+
+    /* Empuje del contenido por sidebar con PADDING (no margin) + compensación topbar */
+    .has-sidenav .shell {
+        padding-left: var(
+            --sidenav-w
+        ); /* <— clave para no “perder” contenido a la derecha */
+        padding-top: var(--topbar-h); /* evita superposición bajo la topbar */
+    }
+
+    /* Labels del menú */
+    #sidebar .menu-label {
+        white-space: nowrap;
+    }
+    body.has-sidenav.collapsed #sidebar .menu-label {
+        display: none;
+    }
+
+    /* En colapso, sólo íconos centrados */
+    body.has-sidenav.collapsed #sidebar a {
+        justify-content: center;
+        gap: 0.25rem;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Footer del sidebar: proteger ancho y evitar desbordes */
+    #sidebar .sidebar-footer {
+        overflow-x: hidden;
+    }
+    #sidebar .sidebar-footer a {
+        display: flex;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+}
+
+/* -------- Topbar fija -------- */
+.app-topbar {
+    height: var(--topbar-h);
+    z-index: 40;
+}
+
+@media (min-width: 1024px) {
+    .app-topbar.is-fixed {
+        position: fixed;
+        top: 0;
+        left: var(--sidenav-w); /* se alinea al borde del sidebar */
+        right: 0; /* ocupa hasta el borde derecho */
+        /* sin width para evitar desbordes por padding interno */
+    }
+    .app-topbar.is-sticky {
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+}
+
+/* -------- Accesibilidad -------- */
+#sidebar a:focus-visible {
+    outline: 2px solid rgb(59 130 246 / 0.7);
+    outline-offset: 2px;
+}
+
+/* -------- Tooltips opcionales (sólo si los usas) -------- */
+@media (min-width: 1024px) {
+    body.has-sidenav.collapsed #sidebar a[data-tip] {
+        position: relative;
+    }
+    body.has-sidenav.collapsed #sidebar a[data-tip]:hover::after {
+        content: attr(data-tip);
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 10px);
+        transform: translateY(-50%);
+        padding: 6px 8px;
+        font-size: 12px;
+        line-height: 1;
+        border-radius: 6px;
+        background: rgba(17, 24, 39, 0.95);
+        color: #fff;
+        white-space: nowrap;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        z-index: 60;
+    }
+    body.has-sidenav.collapsed #sidebar a[data-tip]:hover::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 4px);
+        transform: translateY(-50%);
+        border: 6px solid transparent;
+        border-right-color: rgba(17, 24, 39, 0.95);
+    }
+}
+
+/* -------- Micro-ajustes visuales -------- */
+#sidebar a {
+    border-color: transparent;
+}
+#sidebar a:hover {
+    border-color: rgb(212 212 216);
+    background: #fff;
+}
+.dark #sidebar a:hover {
+    border-color: rgb(82 82 91);
+    background: rgb(39 39 42);
+}
+
+@media (min-width: 1024px) {
+    #sidebar .sidebar-footer {
+        border-top: 1px solid rgb(228 228 231);
+    }
+    .dark #sidebar .sidebar-footer {
+        border-top-color: rgb(63 63 70);
+    }
+}

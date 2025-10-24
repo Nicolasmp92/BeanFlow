@@ -2,20 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;                    // <- para usar VALID_ROLES y el modelo
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
     /**
      * Define the model's default state.
      *
@@ -23,78 +16,74 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        // Puedes cambiar el dominio para mantener consistencia del entorno
-        $email = fake()->unique()->safeEmail();
-        if (str_ends_with($email, '@example.org') || str_ends_with($email, '@example.com')) {
-            $email = str_replace('@example.com', '@beanflow.test', $email);
-            $email = str_replace('@example.org', '@beanflow.test', $email);
-        }
+        // Lista oficial tomada del modelo (asegura consistencia)
+        $roles = User::VALID_ROLES; // ['SUPER ADMIN', 'INSPECTOR', 'ADMINISTRADOR']
 
         return [
-            'name'              => fake()->name(),
-            'email'             => $email,
+            'name'              => $this->faker->name(),
+            'email'             => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            // Permite sobreescribir con FACTORY_PASSWORD en .env si quieres
-            'password'          => static::$password ??= Hash::make(env('FACTORY_PASSWORD', 'password')),
+            'password'          => Hash::make('pass123'), // clave de prueba conocida
+            'rol'               => $this->faker->randomElement($roles), // 👈 ahora sí, roles válidos
+            'cliente'           => $this->faker->company(),
+            'cliente_id'        => $this->faker->numberBetween(1, 500000), // unsignedBigInteger
+            'status'            => $this->faker->randomElement(['activo', 'inactivo']),
+            'theme'             => $this->faker->randomElement(['system', 'light', 'dark']),
+            'theme_accent'      => $this->faker->randomElement(['orange', 'emerald', 'purple', 'sky', 'rose']),
+            'theme_neutral'     => $this->faker->randomElement(['gray', 'zinc', 'slate', 'neutral', 'stone']),
             'remember_token'    => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Asegura sincronización del rol de Spatie post-creación.
+     * (Tu modelo ya lo hace en saved(), pero esto lo deja explícito.)
+     */
+    public function configure()
+    {
+        return $this->afterCreating(function (User $user) {
+            if ($user->rol) {
+                $user->syncRoles([$user->rol]); // mantiene coherencia legacy <-> Spatie
+            }
+        });
+    }
+
+    /**
+     * Estado: email NO verificado.
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
-    /**
-     * Estados por rol (Spatie). No rompe si aún no tienes HasRoles/roles creados.
-     */
+    /** ---------- Atajos por ROL (útiles en seeders/tests) ---------- */
+
     public function superAdmin(): static
     {
-        return $this->afterCreating(function ($user) {
-            if (method_exists($user, 'assignRole')) {
-                try { $user->assignRole('super-admin'); } catch (\Throwable $e) {}
-            }
-        });
+        return $this->state(fn() => ['rol' => 'SUPER ADMIN']);
     }
 
-    public function admin(): static
+    public function inspector(): static
     {
-        return $this->afterCreating(function ($user) {
-            if (method_exists($user, 'assignRole')) {
-                try { $user->assignRole('admin'); } catch (\Throwable $e) {}
-            }
-        });
+        return $this->state(fn() => ['rol' => 'INSPECTOR']);
     }
 
-    public function garzon(): static
+    public function administrador(): static
     {
-        return $this->afterCreating(function ($user) {
-            if (method_exists($user, 'assignRole')) {
-                try { $user->assignRole('garzon'); } catch (\Throwable $e) {}
-            }
-        });
+        return $this->state(fn() => ['rol' => 'ADMINISTRADOR']);
     }
 
-    public function cocina(): static
+    /** ---------- Atajos por STATUS ---------- */
+
+    public function active(): static
     {
-        return $this->afterCreating(function ($user) {
-            if (method_exists($user, 'assignRole')) {
-                try { $user->assignRole('cocina'); } catch (\Throwable $e) {}
-            }
-        });
+        return $this->state(fn() => ['status' => 'activo']);
     }
 
-    public function ventas(): static
+    public function inactive(): static
     {
-        return $this->afterCreating(function ($user) {
-            if (method_exists($user, 'assignRole')) {
-                try { $user->assignRole('ventas'); } catch (\Throwable $e) {}
-            }
-        });
+        return $this->state(fn() => ['status' => 'inactivo']);
     }
 }

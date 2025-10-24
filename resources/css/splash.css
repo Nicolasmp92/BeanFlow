@@ -19,17 +19,19 @@ body {
     overflow: hidden;
 }
 
-.splash-hidden{
-    opacity:0;
-    pointer-events:none;
-    visibility:hidden;
+.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
 }
 
 @keyframes cupPulse {
+
     0%,
     100% {
         transform: translateZ(0) scale(1);
     }
+
     50% {
         transform: translateZ(0) scale(1.04);
     }
@@ -45,13 +47,16 @@ body {
         transform: translateY(0) scaleY(0.25);
         opacity: 0;
     }
+
     15% {
         opacity: .9;
     }
+
     60% {
         transform: translateY(-4px) scaleY(1);
         opacity: .9;
     }
+
     100% {
         transform: translateY(-8px) scaleY(1.08);
         opacity: 0;
@@ -78,14 +83,17 @@ body {
 }
 
 @keyframes dotBlink {
+
     0%,
     20% {
         opacity: 0;
     }
+
     30%,
     70% {
         opacity: 1;
     }
+
     100% {
         opacity: 0;
     }
@@ -114,9 +122,11 @@ body {
     0% {
         transform: scale(1);
     }
+
     40% {
         transform: scale(1.08);
     }
+
     100% {
         transform: scale(1);
     }
@@ -124,7 +134,7 @@ body {
 
 #app-splash.splash-done #coffee-icon {
     animation: cupPop 420ms ease-out 1;
-    color: var(--splash-ok, #10b981) !important;
+    color: var(--splash-ok, #10b981);
 }
 
 #app-splash.splash-done #splash-message .dots {
@@ -134,4 +144,34 @@ body {
 #app-splash.splash-done #splash-message {
     color: var(--splash-ok-text, #10b981);
     font-weight: 600;
+}
+
+/* Fallback para 'inert' (por si el navegador no lo soporta) */
+[inert] {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* Pop sutil del mensaje cuando cambia al saludo final */
+@keyframes splashMsgPop {
+    0% {
+        transform: scale(.98);
+        opacity: .4;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#app-splash.splash-done #splash-message .msg-text {
+    animation: splashMsgPop .28s ease-out 1;
+}
+
+/* Grupo espejo para invertir horizontalmente un trazo de vapor */
+.steam-mirror {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scaleX(-1);
 }

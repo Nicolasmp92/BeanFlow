@@ -1,139 +1,191 @@
 // resources/js/ui/tooltip.js
-// Requiere: window.createPopper (lo exponemos en resources/js/core/popper.js)
 
-let tooltips = [];
-let bound = false;
+const HAS_BOUND = 'tooltipBound';
+const PORTED = 'tooltipPorted';
 
-function makeTip(trigger, tip) {
-    // Lee atributos
-    const placement = trigger.getAttribute("data-placement") || "top";
-    const arrowEl = tip.querySelector("[data-popper-arrow]");
-    // helper: crea popper una sola vez por tip/trigger
-    let instance = null;
-
-    const create = () => {
-        // Evita instancias duplicadas si alguien “spamea” hover/click
-        if (instance) return instance;
-
-        // Construye array de modifiers limpio
-        const modifiers = [
-            { name: "offset", options: { offset: [0, 8] } },
-            {
-                name: "preventOverflow",
-                options: { padding: 8, boundary: "clippingParents" },
-            },
-            // Importante: desactivar GPU a veces corrige desfases de flecha
-            { name: "computeStyles", options: { gpuAcceleration: false } },
-        ];
-        if (arrowEl) {
-            modifiers.push({
-                name: "arrow",
-                options: { element: arrowEl, padding: 6 },
-            });
-        }
-
-        instance = window.createPopper(trigger, tip, {
-            placement,
-            strategy: "fixed", // suele alinear mejor en layouts con transforms/scrolls
-            modifiers,
-        });
-
-        return instance;
-    };
-
-    const show = () => {
-        if (!tip) return;
-        tip.classList.remove("hidden");
-        tip.style.visibility = "visible";
-        tip.style.pointerEvents = "auto";
-
-        create(); // crea si no existe
-        instance.update(); // fuerza cálculo con el elemento ya visible
-    };
-
-    const hide = () => {
-        if (instance) {
-            instance.destroy();
-            instance = null;
-        }
-        tip.style.visibility = "hidden";
-        tip.style.pointerEvents = "none";
-        tip.classList.add("hidden");
-    };
-
-    // Eventos por defecto: hover + focus
-    const onEnter = () => show();
-    const onLeave = (e) => {
-        // si el mouse va al propio tooltip, no cerrar inmediatamente
-        const toEl = e.relatedTarget;
-        if (toEl && (toEl === tip || tip.contains(toEl))) return;
-        hide();
-    };
-
-    trigger.addEventListener("mouseenter", onEnter);
-    trigger.addEventListener("mouseleave", onLeave);
-    trigger.addEventListener("focus", onEnter);
-    trigger.addEventListener("blur", hide);
-
-    // Click alterna
-    trigger.addEventListener("click", () => {
-        const isHidden = tip.classList.contains("hidden");
-        isHidden ? show() : hide();
-    });
-
-    // Esc cierra
-    const onKey = (e) => {
-        if (e.key === "Escape") hide();
-    };
-    document.addEventListener("keydown", onKey);
-
-    // Cierre si clic fuera
-    const onDocClick = (e) => {
-        if (trigger.contains(e.target) || tip.contains(e.target)) return;
-        hide();
-    };
-    document.addEventListener("click", onDocClick);
-
-    // Limpieza cuando Livewire re-renderiza: devolvemos un destructor
-    return () => {
-        trigger.removeEventListener("mouseenter", onEnter);
-        trigger.removeEventListener("mouseleave", onLeave);
-        trigger.removeEventListener("focus", onEnter);
-        trigger.removeEventListener("blur", hide);
-        document.removeEventListener("keydown", onKey);
-        document.removeEventListener("click", onDocClick);
-        hide();
-    };
+/** Popper factory (global) */
+function getCreatePopper() {
+    return typeof window !== 'undefined' && typeof window.createPopper === 'function'
+        ? window.createPopper
+        : null;
 }
 
-// Export principal
-export function registerTooltips() {
-    // Evitar doble binding masivo
-    if (bound) {
-        // Cierra instancias previas para evitar fugas
-        tooltips.forEach((t) => t.instance?.destroy?.());
-        tooltips = [];
+
+/** Asegura que el tooltip viva bajo <body> (portal) para que jamás afecte el layout local */
+function ensurePortal(tooltip) {
+    if (!tooltip || tooltip.dataset[PORTED] === '1') return;
+    document.body.appendChild(tooltip);
+    tooltip.dataset[PORTED] = '1';
+}
+
+/** Mide/Inicializa sin provocar reflow visible */
+function measureWhileHidden(tooltip, fn) {
+    const prev = {
+        hidden: tooltip.classList.contains('hidden'),
+        position: tooltip.style.position,
+        top: tooltip.style.top,
+        left: tooltip.style.left,
+        transform: tooltip.style.transform,
+        visibility: tooltip.style.visibility,
+        pointerEvents: tooltip.style.pointerEvents,
+        willChange: tooltip.style.willChange,
+    };
+
+    // Forzamos condiciones seguras de medición
+    if (prev.hidden) tooltip.classList.remove('hidden');
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = '0px';
+    tooltip.style.left = '0px';
+    tooltip.style.transform = 'translate3d(-9999px, -9999px, 0)'; // fuera de pantalla
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.willChange = 'transform';
+
+    try {
+        fn();
+    } finally {
+        // Restablece; Popper aplicará sus estilos reales al mostrar
+        tooltip.style.position = prev.position;
+        tooltip.style.top = prev.top;
+        tooltip.style.left = prev.left;
+        tooltip.style.transform = prev.transform;
+        tooltip.style.visibility = prev.visibility;
+        tooltip.style.pointerEvents = prev.pointerEvents;
+        tooltip.style.willChange = prev.willChange;
+        if (prev.hidden) tooltip.classList.add('hidden');
+    }
+}
+
+/** Crea Popper con opciones estándar del proyecto */
+function createPopperInstance(referenceEl, tooltipEl, { placement = 'top', noflip = false } = {}) {
+    const createPopper = getCreatePopper();
+    if (!createPopper) {
+        console.warn('[tooltip.js] Popper no está disponible. Asegúrate de importar ./core/popper.js en app.js');
+        return null;
     }
 
-    // Busca triggers
-    const triggers = document.querySelectorAll(
-        "[data-tooltip][data-tooltip-content]"
-    );
-    triggers.forEach((tr) => {
-        const sel = tr.getAttribute("data-tooltip-content"); // p.ej. "#tip-remember"
-        if (!sel) return;
-        const tip = document.querySelector(sel);
-        if (!tip) return;
-
-        // Estado inicial oculto (por si el HTML no lo trae)
-        tip.classList.add("hidden");
-        tip.style.position = "absolute";
-        tip.style.zIndex = "9999";
-        tip.style.visibility = "hidden";
-
-        // Crea manejadores
-        makeTip(tr, tip);
+    return createPopper(referenceEl, tooltipEl, {
+        placement,
+        strategy: 'fixed',
+        modifiers: [
+            { name: 'offset', options: { offset: [0, 8] } },
+            { name: 'preventOverflow', options: { boundary: 'viewport', padding: 8 } },
+            noflip
+                ? { name: 'flip', enabled: false }
+                : { name: 'flip', options: { fallbackPlacements: ['top', 'bottom', 'right', 'left'] } },
+            { name: 'computeStyles', options: { adaptive: false } },
+        ],
     });
+}
 
-    bound = true;
+
+/**
+ * Enlaza botón + tooltip
+ * - Portal a <body> (no empuja layout jamás)
+ * - Forzamos fixed antes de mostrar
+ * - Interactivo (no se oculta al pasar al tooltip)
+ */
+function bindTooltipButton(btn, tooltip, { placement = 'top', noflip = false } = {}) {
+    if (!btn || !tooltip) return;
+    if (btn.dataset[HAS_BOUND] === '1') return;
+
+    // Saca el tooltip del flujo del contenedor
+    ensurePortal(tooltip);
+
+    let popperInstance = null;
+    let hideTimer = null;
+
+    function ensureMeasuredAndInit() {
+        if (popperInstance) return;
+        measureWhileHidden(tooltip, () => {
+            popperInstance = createPopperInstance(btn, tooltip, { placement, noflip });
+        });
+    }
+
+    function show() {
+        clearTimeout(hideTimer);
+        ensureMeasuredAndInit();
+
+        // Asegura que nunca empuje layout al mostrarse
+        tooltip.style.position = 'fixed';
+        tooltip.style.willChange = 'transform';
+        tooltip.classList.remove('hidden');
+
+        popperInstance && popperInstance.update();
+        btn.setAttribute('aria-expanded', 'true');
+
+        // El tooltip debe ser interactivo
+        tooltip.style.pointerEvents = '';
+    }
+
+    function scheduleHide() {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => {
+            tooltip.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+        }, 100);
+    }
+
+    // Mantener abierto si el mouse está sobre el tooltip
+    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    tooltip.addEventListener('mouseleave', scheduleHide);
+
+    // Eventos del trigger
+    btn.addEventListener('mouseenter', show);
+    btn.addEventListener('focus', show);
+    btn.addEventListener('mouseleave', scheduleHide);
+    btn.addEventListener('blur', scheduleHide);
+
+    btn.dataset[HAS_BOUND] = '1';
+
+    // Limpieza si Livewire reemplaza
+    document.addEventListener(
+        'livewire:update',
+        () => {
+            if (popperInstance) {
+                popperInstance.destroy();
+                popperInstance = null;
+            }
+        },
+        { once: true }
+    );
+}
+
+/** Tooltip dedicado: Recordar correo */
+export function registerRememberEmailTooltip() {
+    const btn = document.getElementById('rememberEmailTooltipBtn');
+    const tooltip = document.getElementById('rememberEmailTooltip');
+    if (!btn || !tooltip) return;
+    bindTooltipButton(btn, tooltip, { placement: 'right', noflip: false });
+}
+
+/**
+ * Tooltips genéricos por data-attributes
+ * - data-tooltip
+ * - data-tooltip-content="#tip-id"
+ * - data-placement="right-start" | "right" | "top" | ...
+ * - data-noflip="1"  (para fijarlo y evitar flip)
+ */
+export function registerDataAttrTooltips() {
+    const triggers = document.querySelectorAll('[data-tooltip][data-tooltip-content]');
+    if (!triggers.length) return;
+
+    triggers.forEach((btn) => {
+        if (btn.dataset[HAS_BOUND] === '1') return;
+
+        const selector = btn.getAttribute('data-tooltip-content');
+        const tooltip = selector ? document.querySelector(selector) : null;
+        if (!tooltip) return;
+
+        const placement = btn.getAttribute('data-placement') || 'top';
+        const noflip = btn.hasAttribute('data-noflip');
+
+        bindTooltipButton(btn, tooltip, { placement, noflip });
+    });
+}
+
+/** Registro general */
+export function registerTooltips() {
+    registerRememberEmailTooltip();
+    registerDataAttrTooltips();
 }

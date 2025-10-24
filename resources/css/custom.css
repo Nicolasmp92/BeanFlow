@@ -1,0 +1,164 @@
+/* ============== ACCENT DINÁMICO ================= */
+/* Nota: Flux usa --color-accent y --color-accent-foreground (y a veces content) */
+@layer theme {
+
+    /* Red (sandía) */
+    :root[data-accent="watermelon"] {
+        --color-accent: var(--color-red-500);
+        --color-accent-content: var(--color-red-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="watermelon"] {
+        --color-accent: var(--color-red-400);
+        --color-accent-content: var(--color-red-400);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Green (kiwi) */
+    :root[data-accent="kiwi"] {
+        --color-accent: var(--color-lime-500);
+        --color-accent-content: var(--color-lime-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="kiwi"] {
+        --color-accent: var(--color-lime-300);
+        --color-accent-content: var(--color-lime-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Yellow/Orange (naranja) */
+    :root[data-accent="orange"] {
+        --color-accent: var(--color-orange-500);
+        --color-accent-content: var(--color-orange-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="orange"] {
+        --color-accent: var(--color-orange-400);
+        --color-accent-content: var(--color-orange-400);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Apple (rojo manzana suave) */
+    :root[data-accent="apple"] {
+        --color-accent: var(--color-rose-500);
+        --color-accent-content: var(--color-rose-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="apple"] {
+        --color-accent: var(--color-rose-300);
+        --color-accent-content: var(--color-rose-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+}
+
+/* ============== ACCENT DINÁMICO (branding) ============== */
+@layer theme {
+
+    /* Red (sandía) */
+    :root[data-accent="red"] {
+        --color-accent: var(--color-red-500);
+        --color-accent-content: var(--color-red-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="red"] {
+        --color-accent: var(--color-red-300);
+        --color-accent-content: var(--color-red-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Green (kiwi) */
+    :root[data-accent="green"] {
+        --color-accent: var(--color-green-500);
+        --color-accent-content: var(--color-green-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="green"] {
+        --color-accent: var(--color-green-300);
+        --color-accent-content: var(--color-green-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Amber (cítrico) */
+    :root[data-accent="amber"] {
+        --color-accent: var(--color-amber-500);
+        --color-accent-content: var(--color-amber-600);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    :root.dark[data-accent="amber"] {
+        --color-accent: var(--color-amber-300);
+        --color-accent-content: var(--color-amber-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+
+    /* Emerald (hoja) */
+    :root[data-accent="emerald"] {
+        --color-accent: var(--color-emerald-500);
+        --color-accent-content: var(--color-emerald-600);
+        --color-accent-foreground: var(--color-white);
+    }
+
+    :root.dark[data-accent="emerald"] {
+        --color-accent: var(--color-emerald-300);
+        --color-accent-content: var(--color-emerald-300);
+        --color-accent-foreground: var(--color-neutral-950);
+    }
+}
+
+/* ===== Alias: todo lo "primary" usa el accent actual ===== */
+@layer theme {
+
+    :root,
+    :root.dark {
+        --color-primary: var(--color-accent);
+        --color-primary-content: var(--color-accent-content);
+        --color-primary-foreground: var(--color-accent-foreground);
+    }
+
+    /* Hovers/actives si Flux usa -600/-700 */
+    :root[data-accent="red"] {
+        --color-primary-600: var(--color-red-600);
+        --color-primary-700: var(--color-red-700);
+    }
+
+    :root.dark[data-accent="red"] {
+        --color-primary-600: var(--color-red-400);
+        --color-primary-700: var(--color-red-300);
+    }
+
+    :root[data-accent="green"] {
+        --color-primary-600: var(--color-green-600);
+        --color-primary-700: var(--color-green-700);
+    }
+
+    :root.dark[data-accent="green"] {
+        --color-primary-600: var(--color-green-400);
+        --color-primary-700: var(--color-green-300);
+    }
+
+    :root[data-accent="amber"] {
+        --color-primary-600: var(--color-amber-600);
+        --color-primary-700: var(--color-amber-700);
+    }
+
+    :root.dark[data-accent="amber"] {
+        --color-primary-600: var(--color-amber-400);
+        --color-primary-700: var(--color-amber-300);
+    }
+
+    :root[data-accent="emerald"] {
+        --color-primary-600: var(--color-emerald-600);
+        --color-primary-700: var(--color-emerald-700);
+    }
+
+    :root.dark[data-accent="emerald"] {
+        --color-primary-600: var(--color-emerald-400);
+        --color-primary-700: var(--color-emerald-300);
+    }
+}
