@@ -1,0 +1,8 @@
+interface:
+  display_name: "Desarrollo de aplicaciones"
+  short_description: "Construye apps usables, seguras y reproducibles"
+  brand_color: "#111111"
+  default_prompt: "Usa $desarrollo-aplicaciones para disenar y desarrollar una aplicacion con primeros principios, UX para personas no tecnicas y validacion reproducible."
+
+policy:
+  allow_implicit_invocation: true

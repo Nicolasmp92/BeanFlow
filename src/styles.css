@@ -1,0 +1,159 @@
+@import 'tailwindcss';
+/* Estilos base del CDK Overlay (contenedor, posicionamiento) — los usan
+   tooltips y futuros menus/dialogs headless. */
+@import '@angular/cdk/overlay-prebuilt.css';
+
+/* Variante oscura manual: la clase `dark` la pone PreferencesService (o el
+   script anti-flash de index.html) en <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --color-primary: #3763eb;
+  --color-primary-hover: #2a4ec0;
+  --color-primary-soft: #eef2fe;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f5fb;
+
+  --color-text: #2c374d;
+  --color-text-muted: #575872;
+
+  --color-border: #e2e5f2;
+
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-success: #047857;
+  --color-success-soft: #d1f5e8;
+  --color-warning: #b45309;
+  --color-warning-soft: #fdf3df;
+
+  --animate-slide-in: slide-in 0.2s ease-out;
+}
+
+/* Tema oscuro: mismos tokens semánticos con paleta invertida — los
+   componentes no necesitan cambios porque consumen las variables. */
+html.dark {
+  color-scheme: dark;
+  --color-primary: #8aa5f8;
+  --color-primary-hover: #a5bcfa;
+  --color-primary-soft: #1e2a52;
+  --color-surface: #181b2a;
+  --color-surface-muted: #10121c;
+  --color-text: #e8eaf3;
+  --color-text-muted: #a3a7c0;
+  --color-border: #2e3348;
+  --color-danger: #f87171;
+  --color-danger-soft: #3a1216;
+  --color-success: #34d399;
+  --color-success-soft: #052e22;
+  --color-warning: #fbbf24;
+  --color-warning-soft: #3d2a05;
+}
+
+/* Paletas de acento: cada bloque redefine los tokens primary en un elemento
+   con `data-paleta`. PreferencesService lo pone en <html>; en un elemento
+   suelto sirve de muestra (los swatches del selector lo usan así).
+   Para agregar una paleta: duplicar un bloque en claro + su par en `html.dark`,
+   y añadir la opción en `opcionesPaleta` de PerfilPage. */
+[data-paleta='azul'] {
+  --color-primary: #3763eb;
+  --color-primary-hover: #2a4ec0;
+  --color-primary-soft: #eef2fe;
+}
+html.dark[data-paleta='azul'] {
+  --color-primary: #8aa5f8;
+  --color-primary-hover: #a5bcfa;
+  --color-primary-soft: #1e2a52;
+}
+
+[data-paleta='esmeralda'] {
+  --color-primary: #047857;
+  --color-primary-hover: #065f46;
+  --color-primary-soft: #e6f6f0;
+}
+html.dark[data-paleta='esmeralda'] {
+  --color-primary: #34d399;
+  --color-primary-hover: #6ee7b7;
+  --color-primary-soft: #052e22;
+}
+
+[data-paleta='violeta'] {
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-soft: #f3eefc;
+}
+html.dark[data-paleta='violeta'] {
+  --color-primary: #a78bfa;
+  --color-primary-hover: #c4b5fd;
+  --color-primary-soft: #241a4d;
+}
+
+[data-paleta='ambar'] {
+  --color-primary: #b45309;
+  --color-primary-hover: #92400e;
+  --color-primary-soft: #fdf3df;
+}
+html.dark[data-paleta='ambar'] {
+  --color-primary: #fbbf24;
+  --color-primary-hover: #fcd34d;
+  --color-primary-soft: #3d2a05;
+}
+
+/* Preferencias de accesibilidad (clases en <html>, ver PreferencesService). */
+html.texto-grande {
+  font-size: 112.5%;
+}
+
+html.alto-contraste {
+  --color-text-muted: #3d405a;
+  --color-border: #b8bdd6;
+}
+
+html.dark.alto-contraste {
+  --color-text-muted: #c9cbe0;
+  --color-border: #565c7a;
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Piel unica de los dialogos CDK (confirmaciones, formularios, prompts):
+   un solo lugar para el marco de TODOS los modales. El backdrop oscuro
+   lo pone `cdk-overlay-dark-backdrop`. */
+.dialogo {
+  position: relative; /* ancla del boton x (app-dialogo-x) */
+  width: calc(100vw - 2rem);
+  max-width: 28rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  padding: 1.25rem;
+  box-shadow: 0 20px 50px -12px rgb(0 0 0 / 0.35);
+}
+
+body {
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+  /* Guard contra scroll horizontal durante overlays/transiciones del sidebar. */
+  overflow-x: clip;
+}

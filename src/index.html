@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>BeanFlow</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      /* Anti-flash: aplica las preferencias guardadas antes del primer
+       pintado. Debe reflejar las mismas claves/clases que
+       PreferencesService. */
+      (function () {
+        try {
+          var t = localStorage.getItem('beanflow.tema');
+          var oscuro =
+            t === 'oscuro' || (t !== 'claro' && matchMedia('(prefers-color-scheme: dark)').matches);
+          var r = document.documentElement;
+          var p = localStorage.getItem('beanflow.paleta');
+          if (p) r.dataset.paleta = p;
+          if (oscuro) r.classList.add('dark');
+          if (localStorage.getItem('beanflow.texto-grande') === '1') r.classList.add('texto-grande');
+          if (localStorage.getItem('beanflow.alto-contraste') === '1') r.classList.add('alto-contraste');
+          if (localStorage.getItem('beanflow.reducir-animaciones') === '1')
+            r.classList.add('reduce-motion');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>
