@@ -44,3 +44,16 @@ corregir una anterior, pero no borra su huella.
   de `application.yml` (o vía `.env` con `BEANFLOW_DB_*`).
 - Seed: admin `nikolasmp92@gmail.com` / `niko9214` (defaults de
   `application.yml`, override con `BEANFLOW_SEED_*`).
+
+### Fix: 500 en salón/carta/cocina por LazyInitializationException
+
+- Causa: `open-in-view: false` + DTOs armados en el controlador → todo proxy
+  lazy (`Comanda.items`, `ComandaItem.comanda.mesa`, `RecetaItem.insumo`,
+  `Producto.categoria`, `MovimientoInsumo.insumo`) explotaba al leerse fuera
+  de sesión.
+- Fix: `@EntityGraph` en los métodos de consulta de los 5 repositorios
+  (comandas, comanda_items, receta_items, productos, movimientos_insumo) —
+  mismo patrón que el fix `dd4399f` de KaiPetPoint.
+- Verificación: `mvn test` verde; smoke curl — 10 endpoints GET en 200 y
+  flujo abrir comanda → salón marca mesa ocupada (antes: 500 en mesas y
+  carta).
