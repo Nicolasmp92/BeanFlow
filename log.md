@@ -57,3 +57,11 @@ corregir una anterior, pero no borra su huella.
 - Verificación: `mvn test` verde; smoke curl — 10 endpoints GET en 200 y
   flujo abrir comanda → salón marca mesa ocupada (antes: 500 en mesas y
   carta).
+
+## 2026-10-06 — Fix: cuenta de mesa en blanco
+
+- Síntoma: tocar una mesa abría la comanda pero `/cuenta/:id` no mostraba nada.
+- Causa: `CuentaPage` declara `id = input.required<string>()` esperando
+  `withComponentInputBinding`, pero `provideRouter(routes)` no lo activaba —
+  el parámetro `:id` nunca se enlazaba.
+- Fix: `withComponentInputBinding()` en `provideRouter` (app.config.ts).
