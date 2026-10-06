@@ -16,6 +16,15 @@ import {
   ProductoCarta,
 } from '../../shared/models';
 
+/** Minúsculas y sin diacríticos: «café» encuentra «Cafe». */
+function normalizar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+}
+
 /**
  * La cuenta de una mesa: se agregan consumos a lo largo de la estadía y al
  * final se cobra. A diferencia de un POS de mostrador, la cuenta vive abierta.
@@ -106,10 +115,28 @@ import {
         @if (cuenta.estado === 'abierta') {
           <section>
             <h2 class="text-sm font-medium">Agregar de la carta</h2>
-            @for (categoria of carta.value(); track categoria.id) {
-              <details class="mt-2 rounded-xl border border-border bg-surface" open>
+            <label class="mt-2 block">
+              <span class="sr-only">Buscar producto en la carta</span>
+              <input
+                type="search"
+                [value]="busqueda()"
+                (input)="busqueda.set($any($event.target).value)"
+                placeholder="Buscar producto…"
+                class="h-11 w-full rounded-lg border border-border bg-surface px-3 outline-none focus:border-primary"
+              />
+            </label>
+            @for (categoria of cartaFiltrada(); track categoria.id) {
+              <!-- Cerradas por defecto: una carta grande no es scroll infinito.
+                   Al buscar, las categorías con coincidencias se abren solas. -->
+              <details
+                class="mt-2 rounded-xl border border-border bg-surface"
+                [open]="buscando()"
+              >
                 <summary class="cursor-pointer px-3 py-2 text-sm font-medium">
                   {{ categoria.nombre }}
+                  <span class="text-xs font-normal text-text-muted">
+                    · {{ categoria.productos.length }}
+                  </span>
                 </summary>
                 <ul class="divide-y divide-border border-t border-border">
                   @for (producto of categoria.productos; track producto.id) {
@@ -138,6 +165,14 @@ import {
                   }
                 </ul>
               </details>
+            } @empty {
+              @if (buscando()) {
+                <p
+                  class="mt-2 rounded-xl border border-border bg-surface p-4 text-sm text-text-muted"
+                >
+                  Sin resultados para «{{ busqueda() }}».
+                </p>
+              }
             }
           </section>
         }
@@ -216,6 +251,24 @@ export default class CuentaPage {
   protected readonly metodos = METODOS_PAGO;
   protected readonly metodoElegido = signal<MetodoPago>('efectivo');
   protected readonly cobrando = signal(false);
+  protected readonly busqueda = signal('');
+
+  protected readonly buscando = computed(() => this.busqueda().trim().length > 0);
+
+  /** Filtra la carta por nombre de producto, ignorando tildes y mayúsculas. */
+  protected readonly cartaFiltrada = computed(() => {
+    const consulta = normalizar(this.busqueda());
+    const categorias = this.carta.value() ?? [];
+    if (!consulta) return categorias;
+    return categorias
+      .map((categoria) => ({
+        ...categoria,
+        productos: categoria.productos.filter((producto) =>
+          normalizar(producto.nombre).includes(consulta),
+        ),
+      }))
+      .filter((categoria) => categoria.productos.length > 0);
+  });
 
   protected readonly comanda = httpResource<Comanda>(() => `/api/comandas/${this.id()}`);
   protected readonly carta = httpResource<CategoriaCarta[]>(() => '/api/carta');

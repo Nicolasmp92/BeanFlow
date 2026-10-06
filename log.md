@@ -65,3 +65,12 @@ corregir una anterior, pero no borra su huella.
   `withComponentInputBinding`, pero `provideRouter(routes)` no lo activaba —
   el parámetro `:id` nunca se enlazaba.
 - Fix: `withComponentInputBinding()` en `provideRouter` (app.config.ts).
+
+### Carta de la cuenta: buscador + acordeón
+
+- Motivo: las secciones (`<details open>`) mostraban todos los productos
+  expandidos — con una carta grande era scroll infinito.
+- Cambio: input de búsqueda que filtra productos por nombre ignorando
+  tildes/mayúsculas; categorías cerradas por defecto (con contador de
+  productos) y auto-abiertas mientras hay consulta; mensaje de sin
+  resultados.
