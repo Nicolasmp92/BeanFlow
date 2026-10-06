@@ -10,3 +10,4 @@
 | 2026-10-05 | Fix 500 salón/carta/cocina: `@EntityGraph` en 5 repos (lazy + open-in-view=false) | mvn test verde; 10 GET 200 + abrir comanda 201 |
 | 2026-10-06 | Fix `/cuenta/:id` en blanco: `withComponentInputBinding()` faltaba en `provideRouter` — el `:id` nunca llegaba al `input.required` de CuentaPage | rebuild dev verde; navegación salón→cuenta |
 | 2026-10-06 | Buscador de productos en la cuenta: filtra por nombre sin tildes; categorías cerradas por defecto se abren solas al buscar | lint + rebuild verdes |
+| 2026-10-06 | Smoke e2e H2: comanda→cocina→descuento insumos→cobro→mesa libre; auth por rol (cocina 403/200 correctos); doble comanda 409; proxy :4205→:8085 | curls en vivo, todo esperado |

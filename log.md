@@ -74,3 +74,26 @@ corregir una anterior, pero no borra su huella.
   tildes/mayúsculas; categorías cerradas por defecto (con contador de
   productos) y auto-abiertas mientras hay consulta; mensaje de sin
   resultados.
+
+## 2026-10-06 — Smoke end-to-end en vivo (modo H2)
+
+- Auditoría de continuidad: commits `955de5c`→`8825a59` ya cubren el stack
+  completo; pendiente real = solo provisionar PostgreSQL y mergear a `main`.
+- Backend H2 (`BEANFLOW_DB_URL=jdbc:h2:mem:...` + `SPRING_FLYWAY_LOCATIONS=
+  classpath:db/migration-h2`) + front `:4205` con proxy → flujo completo:
+  login admin → abrir comanda mesa 1 (201) → +2 Capuchinos → cocina
+  preparando (descuenta insumos exactos: −36 g café, −300 ml leche,
+  −6 g cacao, −2 vasos) → listo → cobrar $7.000 efectivo → mesa libre.
+- Casos negativos verificados: doble comanda misma mesa → 409; sin token →
+  401; rol `cocina` abriendo comanda → 403; `cocina` en `/api/admin/**` →
+  403; `cocina` en cola de cocina → 200.
+- Carta calcula `disponibles` por cuello de botella de receta (Latte=90 por
+  leche). Seeder siembra solo el admin — usuarios de rol se crean desde
+  Usuarios (verificado con `cocina@beanflow.dev`).
+- Nota: había un `ng serve` zombie de la sesión anterior ocupando :4205 sin
+  responder (PID 5360, iniciado 20:02); se mató y se reinició limpio.
+- Pendiente bloqueado: `beanflow` + `beanflow_user` en PostgreSQL requieren
+  clave de superusuario — ningún rol local (`sck_user`, `frunexis_user`)
+  tiene CREATEDB. Hasta entonces el índice parcial
+  `uq_comanda_abierta_por_mesa` no está enforced (en H2 lo cubre el chequeo
+  del servicio).
