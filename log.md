@@ -97,3 +97,69 @@ corregir una anterior, pero no borra su huella.
   tiene CREATEDB. Hasta entonces el índice parcial
   `uq_comanda_abierta_por_mesa` no está enforced (en H2 lo cubre el chequeo
   del servicio).
+
+## 2026-10-06 — Auditoría de mejora: roadmap de ramas
+
+Análisis del código post-smoke. Hallazgos ordenados por impacto; los items 1–3
+son los que un café real choca el primer día de operación.
+
+### Bugs y brechas verificadas en el código
+
+1. **`entregado` inalcanzable por rol.** El ciclo existe
+   (`pendiente→preparando→listo→entregado`) pero el único endpoint que avanza
+   estados es `PATCH /api/cocina/items/{id}` bajo `/api/cocina/**` → exige
+   COCINA|ADMIN. El garzón — quien lleva el plato a la mesa — no puede marcar
+   entregado. Y el salón miente: `itemsPendientes` cuenta solo
+   pendiente+preparando, así que al marcar "listo" en barra el salón ya dice
+   "todo entregado" sin que nadie lo haya llevado.
+   → `fix/estado-entregado`: botón "entregar" en la cuenta o permiso garzón
+   sobre ese endpoint acotado.
+2. **Nota por ítem cableada pero sin entrada.** `agregarItem` acepta `nota` y
+   cocina la muestra en ámbar; `cuenta.page` nunca la envía. "Sin azúcar",
+   "término medio", "sin hielo" no se pueden pedir. → `feat/nota-item`.
+3. **La barra no se entera sola.** Cocina solo refresca con el botón
+   "Actualizar"; un pedido nuevo del salón es invisible hasta el refresh
+   manual. Ídem el salón con dos garzones. → `feat/refresco-automatico`:
+   polling ~8s (barato) o SSE (real); empezar por polling.
+4. **"Para llevar" huérfano.** Se crea y navega a la cuenta, pero el salón no
+   lista pedidos para llevar pendientes (solo el Panel). → `feat/para-llevar`.
+5. **Líneas duplicadas.** Tres clicks en Capuchino = tres líneas `1×`, no una
+   de `3×`; ensucia la cuenta y el cobro. → `fix/agrupar-lineas`: mergear si
+   producto+nota+estado coinciden.
+6. **Guard autentica pero no autoriza.** `authGuard` solo verifica sesión; un
+   `cocina` navegando a `/admin/carta` carga la página (backend rechaza con
+   403, pero la UX es fea). → `fix/rol-guard`: rol esperado por ruta.
+
+### Funcionalidad de negocio
+
+- `feat/historial-ventas` — página del día para `caja`; el endpoint
+  `/api/comandas/historial` ya existe, es solo UI. El rol caja no tiene nada
+  propio hoy.
+- `feat/cierre-caja` — reporte del día: por método de pago, ticket promedio,
+  top productos. Necesita endpoint agregado (hoy se mandan 100 comandas
+  crudas al cliente para sumar).
+- `feat/propina` — propina sugerida 10% al cobrar (estándar Chile); falta
+  campo `propina` en comanda.
+- `feat/food-cost` — costo y margen % por producto en carta admin; los datos
+  ya están (`costoUnitario` × receta), es solo calcular y mostrar.
+- `feat/ticket` — boleta imprimible post-cobro (80mm, `@media print`).
+- `feat/tiempos-barra` — "hace X min" + alerta de espera larga en cocina;
+  `creadoEn` ya llega al front, es solo render.
+
+### Hardening técnico
+
+- `test/comandas-service` — la lógica más delicada (consumo al preparar,
+  merma al anular, recalcular total) no tiene tests directos; solo hay
+  JwtServiceTest e InventarioServiceTest.
+- Libro de movimientos: tope 100 sin filtros por insumo/tipo/fecha.
+- Swagger `permitAll` en SecurityConfig — pendiente gate por profile para
+  producción.
+- PostgreSQL `beanflow`/`beanflow_user` sigue sin aprovisionar (bloqueado por
+  credencial superusuario) y `refactor/stack-angular-spring` sin mergear a
+  `main`.
+
+### Orden sugerido
+
+1–3 primero (impacto operativo inmediato), 5–6 después (fixes baratos que
+dejan la base limpia), luego historial+cierre de caja para darle razón de
+existir al rol `caja`.
