@@ -12,3 +12,5 @@
 | 2026-10-06 | Buscador de productos en la cuenta: filtra por nombre sin tildes; categorías cerradas por defecto se abren solas al buscar | lint + rebuild verdes |
 | 2026-10-06 | Smoke e2e H2: comanda→cocina→descuento insumos→cobro→mesa libre; auth por rol (cocina 403/200 correctos); doble comanda 409; proxy :4205→:8085 | curls en vivo, todo esperado |
 | 2026-10-06 | Auditoría de mejora: 6 bugs/brechas verificadas (entregado inalcanzable, nota sin UI, cocina sin refresh, para llevar huérfano, líneas duplicadas, guard sin rol) + roadmap de ramas | log.md sección auditoría |
+| 2026-10-13 | Merge `refactor/stack-angular-spring` → `main` (`ea07d99`); Laravel eliminado del branch principal | push verificado; mvn test 12/12, ng build verde, login+comanda 201 en H2 |
+| 2026-10-13 | Regla `.devin/rules/backend-bd-esquema.md` creada (foto V1); foto Laravel histórica en vault | pendiente PostgreSQL: requiere sudo |

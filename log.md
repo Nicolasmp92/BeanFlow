@@ -163,3 +163,22 @@ son los que un café real choca el primer día de operación.
 1–3 primero (impacto operativo inmediato), 5–6 después (fixes baratos que
 dejan la base limpia), luego historial+cierre de caja para darle razón de
 existir al rol `caja`.
+
+## 2026-10-13 — Merge a `main`: Laravel fuera, v2 es el stack activo
+
+- `refactor/stack-angular-spring` mergeado a `main` sin conflictos
+  (`ea07d99`, merge --no-ff). Todo el Laravel v1 eliminado del branch
+  principal; el POS Angular+Spring queda como stack activo. Push a origin
+  verificado.
+- Verificación post-merge en `main`: `mvn test` 12/12 verde; `npm ci` +
+  `ng build` verde (365 kB initial); backend arrancado en :8085 con
+  fallback H2 → `/api/health` 200, login admin 200, `GET /api/mesas` +
+  `GET /api/carta` 200, abrir comanda mesa 1 → 201.
+- Foto del esquema nuevo: `.devin/rules/backend-bd-esquema.md` (V1
+  completo + invariantes). Foto del esquema Laravel viejo queda en el
+  vault (`03_Proyectos/BeanFlow/esquema-laravel-historico.md`) solo como
+  registro — el proyecto ya no depende de Laravel.
+- **Pendiente**: PostgreSQL `beanflow`/`beanflow_user` sigue bloqueado
+  por credencial de superusuario local. Comandos para el usuario:
+  `sudo -u postgres psql -c "CREATE USER beanflow_user WITH PASSWORD 'beanflow_dev'"`
+  y `sudo -u postgres createdb -O beanflow_user beanflow`.
