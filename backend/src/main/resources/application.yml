@@ -1,0 +1,42 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: beanflow-backend
+  datasource:
+    url: ${BEANFLOW_DB_URL:jdbc:postgresql://localhost:5432/beanflow}
+    username: ${BEANFLOW_DB_USER:beanflow_user}
+    password: ${BEANFLOW_DB_PASSWORD:beanflow_dev}
+  jpa:
+    hibernate:
+      # El schema lo gobierna Flyway (db/migration); Hibernate solo valida.
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    # Adopta BD existentes: marca la línea base y aplica solo migraciones
+    # posteriores a V1 (el DDL inicial coincide con lo que ya creó Hibernate).
+    baseline-on-migrate: true
+  mvc:
+    # Errores de la API en formato RFC 7807 (type/status/title/detail).
+    problemdetails:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+beanflow:
+  jwt:
+    # Obligatorio en producción; el valor por defecto es solo para desarrollo.
+    secret: ${BEANFLOW_JWT_SECRET:dev-beanflow-secret-cambiar-en-produccion}
+    # Duración de la sesión en horas.
+    expiracion-horas: ${BEANFLOW_JWT_HORAS:12}
+    cookie-nombre: beanflow_token
+    # true en producción detrás de HTTPS.
+    cookie-secure: ${BEANFLOW_COOKIE_SECURE:false}
+  seed:
+    correo: ${BEANFLOW_SEED_CORREO:nikolasmp92@gmail.com}
+    clave: ${BEANFLOW_SEED_CLAVE:niko9214}
