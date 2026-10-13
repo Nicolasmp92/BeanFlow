@@ -14,3 +14,4 @@
 | 2026-10-06 | Auditoría de mejora: 6 bugs/brechas verificadas (entregado inalcanzable, nota sin UI, cocina sin refresh, para llevar huérfano, líneas duplicadas, guard sin rol) + roadmap de ramas | log.md sección auditoría |
 | 2026-10-13 | Merge `refactor/stack-angular-spring` → `main` (`ea07d99`); Laravel eliminado del branch principal | push verificado; mvn test 12/12, ng build verde, login+comanda 201 en H2 |
 | 2026-10-13 | Regla `.devin/rules/backend-bd-esquema.md` creada (foto V1); foto Laravel histórica en vault | pendiente PostgreSQL: requiere sudo |
+| 2026-10-13 | PostgreSQL `beanflow`/`beanflow_user` aprovisionado; Flyway V1 en PG 17.11; índice parcial verificado (doble comanda → 409) | backend :8085 contra PG |

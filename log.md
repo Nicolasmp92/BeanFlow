@@ -182,3 +182,13 @@ existir al rol `caja`.
   por credencial de superusuario local. Comandos para el usuario:
   `sudo -u postgres psql -c "CREATE USER beanflow_user WITH PASSWORD 'beanflow_dev'"`
   y `sudo -u postgres createdb -O beanflow_user beanflow`.
+
+## 2026-10-13 — PostgreSQL aprovisionado
+
+- `beanflow`/`beanflow_user` creados por el usuario (sudo). Backend
+  arrancado sin fallback → PostgreSQL 17.11, Flyway aplicó V1 limpio
+  (9 tablas + `flyway_schema_history`).
+- `uq_comanda_abierta_por_mesa` verificado en `pg_indexes` y en vivo:
+  doble comanda sobre mesa 1 → **409** (en H2 lo cubría solo el servicio).
+- Smoke: login 200, comanda mesa 1 → 201 (queda abierta como dato demo).
+- **Estado**: migración cerrada. `main` = Angular+Spring con BD real.
