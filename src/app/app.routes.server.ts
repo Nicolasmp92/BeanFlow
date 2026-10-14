@@ -2,13 +2,13 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    // Las rutas con parámetros no se pueden prerenderizar: el set de IDs no
-    // se conoce en build (y cambia en cada turno). Se renderizan por petición.
-    path: 'cuenta/:id',
-    renderMode: RenderMode.Server,
+    path: 'login',
+    renderMode: RenderMode.Prerender,
   },
   {
+    // El shell exige sesión: se renderiza por petición, no se prerenderiza.
+    // Cubre también las rutas con parámetros (`cuenta/:id`).
     path: '**',
-    renderMode: RenderMode.Prerender,
+    renderMode: RenderMode.Server,
   },
 ];
